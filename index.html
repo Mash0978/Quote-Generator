@@ -1,71 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quote Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #121212;
-            color: white;
-            text-align: center;
-        }
-        .container {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            max-width: 500px;
-        }
-        .quote {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
-        .author {
-            font-style: italic;
-            color: #bbbbbb;
-        }
-        .btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+
+    .cell {
+      background: #222;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .cell:hover {
+      background: #333;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #666;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <p class="quote">Click the button to get a quote!</p>
-        <p class="author"></p>
-        <button class="btn" onclick="getQuote()">Get Quote</button>
-    </div>
+  <h1>Tic Tac Toe</h1>
+  <div id="board"></div>
+  <div id="status">Player X's turn</div>
+  <button onclick="resetGame()">Reset</button>
 
-    <script>
-        async function getQuote() {
-            try {
-                const response = await fetch("https://api.quotable.io/random");
-                const data = await response.json();
-                document.querySelector(".quote").innerText = `"${data.content}"`;
-                document.querySelector(".author").innerText = `- ${data.author}`;
-            } catch (error) {
-                document.querySelector(".quote").innerText = "Failed to fetch quote. Try again!";
-                document.querySelector(".author").innerText = "";
-            }
+  <script>
+    const board = document.getElementById('board');
+    const status = document.getElementById('status');
+    let currentPlayer = 'X';
+    let cells = Array(9).fill(null);
+    let gameActive = true;
+
+    const winCombos = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    function checkWin() {
+      for (const combo of winCombos) {
+        const [a, b, c] = combo;
+        if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+          status.textContent = `Player ${cells[a]} wins!`;
+          gameActive = false;
+          return;
         }
-    </script>
+      }
+      if (!cells.includes(null)) {
+        status.textContent = "It's a draw!";
+        gameActive = false;
+      }
+    }
+
+    function handleClick(e) {
+      const index = +e.target.dataset.index;
+      if (!cells[index] && gameActive) {
+        cells[index] = currentPlayer;
+        e.target.textContent = currentPlayer;
+        checkWin();
+        if (gameActive) {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+          status.textContent = `Player ${currentPlayer}'s turn`;
+        }
+      }
+    }
+
+    function createBoard() {
+      board.innerHTML = '';
+      cells = Array(9).fill(null);
+      gameActive = true;
+      currentPlayer = 'X';
+      status.textContent = "Player X's turn";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', handleClick);
+        board.appendChild(cell);
+      }
+    }
+
+    function resetGame() {
+      createBoard();
+    }
+
+    createBoard();
+  </script>
 </body>
 </html>
